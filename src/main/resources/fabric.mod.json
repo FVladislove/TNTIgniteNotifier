@@ -1,0 +1,40 @@
+{
+	"schemaVersion": 1,
+	"id": "tnt-ignite-notifier",
+	"version": "${version}",
+	"name": "TNT Ignite Notifier",
+	"description": "This is a mod which notifies admins about igniting TNT by the player",
+	"authors": [
+		"Me!"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "MIT",
+	"icon": "assets/tntignitenotifier/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.elis.tntignitenotifier.TNTIgniteNotifier"
+		],
+		"client": [
+			"com.elis.tntignitenotifier.TNTIgniteNotifierClient"
+		],
+		"fabric-datagen": [
+			"com.elis.tntignitenotifier.TNTIgniteNotifierDataGenerator"
+		]
+	},
+	"mixins": [
+		"tntignitenotifier.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.15.11",
+		"minecraft": "~1.20.1",
+		"java": ">=17",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
