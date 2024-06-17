@@ -5,6 +5,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.TntBlock;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.item.Items;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
@@ -18,30 +19,42 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import java.util.Objects;
 
 @Mixin(TntBlock.class)
 public class TNTIgniteNotifierMixin {
     @Unique
     private static final Logger LOGGER = LoggerFactory.getLogger("tnt-ignite-notifier-mixin");
 
-    @Inject(method = "onUse", at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/util/ActionResult;success(Z)Lnet/minecraft/util/ActionResult;",
-            shift = At.Shift.AFTER))
-    private void init(BlockState state, World world, BlockPos pos, PlayerEntity player,
-                      Hand hand, BlockHitResult hit, CallbackInfoReturnable<ActionResult> cir) {
-        LOGGER.info("POS:\t" + pos.toShortString());
-
-        var block = state.getBlock();
-
-        LOGGER.info("Player " + player.getName().getString()
-                + "use " + block.getName().getString()
-                + "] at " + pos.toShortString());
+    @Inject(method = "onUse",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/block/TntBlock;primeTnt(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/entity/LivingEntity;)V",
+                    shift = At.Shift.AFTER))
+    private void checkUse(BlockState state, World world, BlockPos pos, PlayerEntity player,
+                          Hand hand, BlockHitResult hit, CallbackInfoReturnable<ActionResult> cir) {
+        LOGGER.info("Ignited using item");
 
         notifyAdmins(player, pos);
 
-		LOGGER.info("UwU-UwU-UwU-UwU-UwU-UwU-UwU-UwU-UwU-UwU-UwU-UwU-UwU-UwU-UwU-UwU-UwU-UwU-UwU-UwU");
+        LOGGER.info("UwU-UwU-UwU-UwU-UwU-UwU-UwU-UwU-UwU-UwU-UwU-UwU-UwU-UwU-UwU-UwU-UwU-UwU-UwU-UwU");
+    }
+
+    @Inject(method = "onProjectileHit",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/block/TntBlock;primeTnt(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/entity/LivingEntity;)V",
+                    shift = At.Shift.AFTER))
+    private void checkProjectileHit(World world, BlockState state, BlockHitResult hit, ProjectileEntity projectile, CallbackInfo ci){
+        if(Objects.requireNonNull(projectile.getOwner()).isPlayer()){
+            LOGGER.info("Ignited using projectile");
+            notifyAdmins((PlayerEntity) projectile.getOwner(), hit.getBlockPos());
+        }
+
+        LOGGER.info("UwU-UwU-UwU-UwU-UwU-UwU-UwU-UwU-UwU-UwU-UwU-UwU-UwU-UwU-UwU-UwU-UwU-UwU-UwU-UwU");
     }
 
     @Unique
@@ -51,6 +64,9 @@ public class TNTIgniteNotifierMixin {
             LOGGER.info("Server is null");
             return;
         }
+
+        LOGGER.info("Player " + player.getName().getString() + " used TNT"
+                + " at " + pos.toShortString());
 
         var playerManager = playerServer.getPlayerManager();
 
@@ -67,7 +83,7 @@ public class TNTIgniteNotifierMixin {
                     LOGGER.info("Admin: {}", admin.getName().getString());
                     if (admin.hasPermissionLevel(3)) {
                         admin.sendMessage(Text.literal("Player" + player.getName().getString()
-								+ " ignited TNT at" + pos.toShortString()), false);
+                                + " ignited TNT at" + pos.toShortString()), false);
                     }
                 }
         );
