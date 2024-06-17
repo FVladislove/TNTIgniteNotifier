@@ -28,60 +28,6 @@ public class TNTIgniteNotifier implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        UseBlockCallback.EVENT.register(this::onUseBlock);
         LOGGER.info("Initialized mod");
-    }
-
-    private ActionResult onUseBlock(PlayerEntity playerEntity, World world, Hand hand, BlockHitResult blockHitResult) {
-        var pos = blockHitResult.getBlockPos();
-        LOGGER.info("POS:\t" + pos.toShortString());
-
-        var blockState = world.getBlockState(pos);
-        LOGGER.info("BlockState:\t" + blockState.toString());
-
-        var block = blockState.getBlock();
-        LOGGER.info("Block:\t" + block.toString());
-
-        LOGGER.info("Player " + playerEntity.getName().getString() + "use " + block.getName().getString() + "] at " + pos.toShortString());
-
-        var stateManager = block.getStateManager();
-        LOGGER.info("StateManager:\t" + stateManager.toString());
-
-        if (block == Blocks.TNT) {
-            LOGGER.info("TNT Entity instance");
-            LOGGER.info("BlockState:\t" + blockState.toString());
-//			if (block.)
-            if (playerEntity.getMainHandStack().getItem() == Items.FLINT_AND_STEEL ||
-                    playerEntity.getMainHandStack().getItem() == Items.FIRE_CHARGE) {
-                notifyAdmins(playerEntity, pos);
-            }
-        }
-        LOGGER.info("============================================");
-        return ActionResult.PASS;
-    }
-
-
-    private void notifyAdmins(PlayerEntity player, BlockPos pos) {
-        var playerServer = player.getServer();
-        if (playerServer == null) {
-            LOGGER.info("Server is null");
-            return;
-        }
-        LOGGER.info("Player Server: {}", playerServer.getName());
-
-        var playerManager = playerServer.getPlayerManager();
-        LOGGER.info("Player Manager: {}", playerManager);
-
-        var playerList = playerManager.getPlayerList();
-        LOGGER.info("Player List: {}", playerList);
-//		Objects.requireNonNull(player.getServer()).getPlayerManager().getPlayerList().forEach(
-        playerList.forEach(
-                admin -> {
-                    LOGGER.info("Admin: {}", admin.getName().getString());
-                    if (admin.hasPermissionLevel(2)) {
-                        admin.sendMessage(Text.literal("Player" + player.getName().getString() + " ignited TNT at" + pos.toShortString()), false);
-                    }
-                }
-        );
     }
 }
